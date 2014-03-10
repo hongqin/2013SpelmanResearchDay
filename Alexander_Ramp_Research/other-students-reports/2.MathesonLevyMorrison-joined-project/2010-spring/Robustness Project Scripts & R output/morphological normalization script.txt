@@ -1,0 +1,12 @@
+#Read mutant table into R
+scmd = read.table( "mutant data.tab", sep="\t", header=T)
+
+#Calculate the variance by column
+row.names(scmd) = as.character( scmd$name )
+for( j in 2:502 ){
+scmd[,j] = ( scmd[,j] - mean(scmd[,j],na.rm=T) )/ sqrt( var( scmd[,j], na.rm=T))
+};
+
+#Calculate the standard deviation by row
+for ( i in 1:4718){
+scmd$stddev[i] = sqrt(var( t(scmd[i,2:502]), na.rm=T ) )}; 

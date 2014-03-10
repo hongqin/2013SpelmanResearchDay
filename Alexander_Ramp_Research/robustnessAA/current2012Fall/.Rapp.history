@@ -1,0 +1,31 @@
+lifespan = read.csv("lifespan.csv");#
+#Read growth fitness table into R#
+fit = read.csv("growth.fitness.hom.csv");#
+fit$orf = as.character( fit$orf ); #
+#Read evolutionary distance table into R#
+data = read.csv( "Sce.Spa.KaKs.csv");#
+#Input protein interaction pairs#
+pairs = read.csv("pairs.csv");#
+pairs$ORF1 = as.character( pairs$ORF1 );#
+pairs$ORF2 = as.character( pairs$ORF2 );#
+#Calculate connecting degrees for proteins#
+ids = c(pairs$ORF1, pairs$ORF2);#
+degree = table( ids );#
+#Summarize the results in a dataframe 'net'#
+net = data.frame(degree);#
+str(net);#
+net$id = as.character( net$id);#
+#Visual examination to double the merged results#
+head(data)#
+net[net$id=='YAL005C', ]#
+net[net$id=='YAL012W', ]#
+#Read mutant table into R#
+scmd = read.table( "scmd.tab", sep="\t", header=T)#
+#Normalize the data by column#
+row.names(scmd) = as.character( scmd$name )#
+for( j in 2:502 ){#
+ scmd[,j] = ( scmd[,j] - mean(scmd[,j],na.rm=T) )/ sqrt( var( scmd[,j], na.rm=T))#
+};#
+#Calculate the standard deviation by row#
+for ( i in 1:4718){#
+scmd$stddev[i] = sqrt(var( t(scmd[i,2:502]), na.rm=T ) )};

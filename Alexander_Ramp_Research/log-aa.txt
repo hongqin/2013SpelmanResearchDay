@@ -1,0 +1,17 @@
+
+
+genetic interaction
+expression data (CV) calculation
+
+todo: 
+repeat the 2010, 2012 robustness analysis
+
+Use CV to evaluate lifespan. CV=1 is exponetial, CV>1 is similar to hyper exponential. (ref: wikipedia entry on CV). 
+
+CV, multi-vairate CV
+morphology
+permutation of CV, fitness, using bna
+genetic interaction score, positive and negative interactions
+
+-------
+by 2012 Sep, aa finishe Qin's 4 R tuborial components. 

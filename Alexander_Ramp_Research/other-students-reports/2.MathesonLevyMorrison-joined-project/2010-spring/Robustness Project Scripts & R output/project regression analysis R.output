@@ -1,0 +1,449 @@
+
+R version 2.10.1 (2009-12-14)
+Copyright (C) 2009 The R Foundation for Statistical Computing
+ISBN 3-900051-07-0
+
+R is free software and comes with ABSOLUTELY NO WARRANTY.
+You are welcome to redistribute it under certain conditions.
+Type 'license()' or 'licence()' for distribution details.
+
+  Natural language support but running in an English locale
+
+R is a collaborative project with many contributors.
+Type 'contributors()' for more information and
+'citation()' on how to cite R or R packages in publications.
+
+Type 'demo()' for some demos, 'help()' for on-line help, or
+'help.start()' for an HTML browser interface to help.
+Type 'q()' to quit R.
+
+> ###INPUT DATA INTO R
+> #Read lifespan table into R
+> lifespan = read.csv("lifespan.csv");
+> 
+> #Read growth fitness table into R
+> fit = read.csv("growth.fitness.hom.csv");
+> fit$orf = as.character( fit$orf ); 
+> 
+> #Read evolutionary distance table into R
+> data = read.csv( "Sce.Spa.KaKs.csv");
+> 
+> #Input protein interaction pairs
+> pairs = read.csv("pairs.csv");
+> pairs$ORF1 = as.character( pairs$ORF1 );
+> pairs$ORF2 = as.character( pairs$ORF2 );
+> 
+> #Calculate connecting degrees for proteins
+> ids = c(pairs$ORF1, pairs$ORF2);
+> degree = table( ids );
+> 
+> #Summarize the results in a dataframe 'net'
+> net = data.frame(degree);
+> str(net);
+'data.frame':   4478 obs. of  2 variables:
+ $ ids : Factor w/ 4478 levels "YAL001C","YAL002W",..: 1 2 3 4 5 6 7 8 9 10 ...
+ $ Freq: int  1 3 3 2 7 24 5 4 3 5 ...
+> net$id = as.character( net$id);
+> 
+> #Visual examination to double the merged results
+> head(data)
+  orfname   Ka   Ks Omega
+1 YAL005C 0.01 0.12  0.07
+2 YAL007C 0.01 0.23  0.06
+3 YAL008W   NA   NA    NA
+4 YAL009W 0.02 0.22  0.09
+5 YAL010C 0.05 0.26  0.18
+6 YAL012W 0.01 0.16  0.04
+> net[net$id=='YAL005C', ]
+      ids Freq      id
+5 YAL005C    7 YAL005C
+> net[net$id=='YAL012W', ]
+       ids Freq      id
+10 YAL012W    5 YAL012W
+> 
+> #Read mutant table into R
+> scmd = read.table( "mutant data.tab", sep="\t", header=T)
+> 
+> #Normalize the data by column
+> row.names(scmd) = as.character( scmd$name )
+> for( j in 2:502 ){
++  scmd[,j] = ( scmd[,j] - mean(scmd[,j],na.rm=T) )/ sqrt( var( scmd[,j], na.rm=T))
++ };
+> 
+> #Calculate the standard deviation by row
+> for ( i in 1:4718){
++ scmd$stddev[i] = sqrt(var( t(scmd[i,2:502]), na.rm=T ) )}; 
+> 
+> 
+> ###FITNESS VS LIFESPAN REGRESSION ANALYSIS
+> 
+> #Determine which fitness growth medium has the best relationship to RLS
+> lifespan$YPD = fit$YPD[match(lifespan$ORF, fit$orf)];
+> summary(lm(lifespan$RLS_Del_alpha ~ lifespan$YPD));
+
+Call:
+lm(formula = lifespan$RLS_Del_alpha ~ lifespan$YPD)
+
+Residuals:
+     Min       1Q   Median       3Q      Max 
+-15.9325  -2.8313  -0.1051   3.5157  18.2696 
+
+Coefficients:
+             Estimate Std. Error t value Pr(>|t|)    
+(Intercept)    14.187      4.126   3.438 0.000695 ***
+lifespan$YPD   10.240      4.178   2.451 0.014991 *  
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1 
+
+Residual standard error: 5.212 on 230 degrees of freedom
+  (352 observations deleted due to missingness)
+Multiple R-squared: 0.02545,    Adjusted R-squared: 0.02122 
+F-statistic: 6.007 on 1 and 230 DF,  p-value: 0.01499 
+
+> 
+> lifespan$YPDGE = fit$YPDGE[match(lifespan$ORF, fit$orf)];
+> summary(lm(lifespan$RLS_Del_alpha ~ lifespan$YPDGE));
+
+Call:
+lm(formula = lifespan$RLS_Del_alpha ~ lifespan$YPDGE)
+
+Residuals:
+     Min       1Q   Median       3Q      Max 
+-16.9224  -2.8361  -0.1338   3.4481  17.3351 
+
+Coefficients:
+               Estimate Std. Error t value Pr(>|t|)  
+(Intercept)      12.018      4.749   2.530   0.0121 *
+lifespan$YPDGE   12.393      4.793   2.586   0.0103 *
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1 
+
+Residual standard error: 5.205 on 230 degrees of freedom
+  (352 observations deleted due to missingness)
+Multiple R-squared: 0.02824,    Adjusted R-squared: 0.02402 
+F-statistic: 6.685 on 1 and 230 DF,  p-value: 0.01034 
+
+> 
+> lifespan$YPG = fit$YPG[match(lifespan$ORF, fit$orf)];
+> summary(lm(lifespan$RLS_Del_alpha ~ lifespan$YPG));
+
+Call:
+lm(formula = lifespan$RLS_Del_alpha ~ lifespan$YPG)
+
+Residuals:
+     Min       1Q   Median       3Q      Max 
+-16.0886  -2.8030  -0.1017   3.4754  14.6917 
+
+Coefficients:
+             Estimate Std. Error t value Pr(>|t|)    
+(Intercept)    14.332      3.400   4.215 3.59e-05 ***
+lifespan$YPG   10.145      3.455   2.936  0.00366 ** 
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1 
+
+Residual standard error: 5.184 on 230 degrees of freedom
+  (352 observations deleted due to missingness)
+Multiple R-squared: 0.03613,    Adjusted R-squared: 0.03194 
+F-statistic: 8.623 on 1 and 230 DF,  p-value: 0.003657 
+
+> 
+> lifespan$YPE = fit$YPE[match(lifespan$ORF, fit$orf)];
+> summary(lm(lifespan$RLS_Del_alpha ~ lifespan$YPE));
+
+Call:
+lm(formula = lifespan$RLS_Del_alpha ~ lifespan$YPE)
+
+Residuals:
+     Min       1Q   Median       3Q      Max 
+-14.8766  -2.9008  -0.1438   3.4350  17.2508 
+
+Coefficients:
+             Estimate Std. Error t value Pr(>|t|)    
+(Intercept)    12.294      3.057   4.021 7.86e-05 ***
+lifespan$YPE   12.246      3.109   3.939 0.000108 ***
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1 
+
+Residual standard error: 5.11 on 230 degrees of freedom
+  (352 observations deleted due to missingness)
+Multiple R-squared: 0.0632,     Adjusted R-squared: 0.05913 
+F-statistic: 15.52 on 1 and 230 DF,  p-value: 0.0001084 
+
+> 
+> lifespan$YPL = fit$YPL[match(lifespan$ORF, fit$orf)];
+> summary(lm(lifespan$RLS_Del_alpha ~ lifespan$YPL));
+
+Call:
+lm(formula = lifespan$RLS_Del_alpha ~ lifespan$YPL)
+
+Residuals:
+     Min       1Q   Median       3Q      Max 
+-17.1112  -2.7506  -0.1297   3.5856  14.5641 
+
+Coefficients:
+             Estimate Std. Error t value Pr(>|t|)   
+(Intercept)    12.821      3.992   3.211  0.00151 **
+lifespan$YPL   11.620      4.039   2.877  0.00439 **
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1 
+
+Residual standard error: 5.187 on 230 degrees of freedom
+  (352 observations deleted due to missingness)
+Multiple R-squared: 0.03474,    Adjusted R-squared: 0.03054 
+F-statistic: 8.278 on 1 and 230 DF,  p-value: 0.004391 
+
+> 
+> ##The best fitness vs lifespan data was for YPE because the R squared value was the strongest and the p value was smallest.
+> 
+> #Plot YPE fitness vs lifespan
+> plot(lifespan$RLS_Del_alpha ~ lifespan$YPE, ylab="Replicative Lifespan", xlab="Fitness Robustness");
+> abline( m, col="red");
+Error in abline(m, col = "red") : object 'm' not found
+> 
+> 
+> ###EVOLUTIONARY DISTANCE VS LIFESPAN REGRESSION ANALYSIS
+> #Match lifespan to evolutionary distance
+> lifespan$Ka = data$Ka[match(lifespan$ORF,data$orfname)];
+> 
+> #Perform linear regression of lifespan vs evolutionary distance and summarize results
+> m = lm(lifespan$RLS_Del_alpha ~ lifespan$Ka);
+> summary(m);
+
+Call:
+lm(formula = lifespan$RLS_Del_alpha ~ lifespan$Ka)
+
+Residuals:
+     Min       1Q   Median       3Q      Max 
+-14.1725  -3.1135  -0.1135   3.2095  14.3061 
+
+Coefficients:
+            Estimate Std. Error t value Pr(>|t|)    
+(Intercept)  24.5742     0.5185  47.396   <2e-16 ***
+lifespan$Ka  -8.0331     9.0552  -0.887    0.376    
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1 
+
+Residual standard error: 4.996 on 283 degrees of freedom
+  (299 observations deleted due to missingness)
+Multiple R-squared: 0.002773,   Adjusted R-squared: -0.0007506 
+F-statistic: 0.787 on 1 and 283 DF,  p-value: 0.3758 
+
+> 
+> #Plot regression analysis
+> plot(lifespan$RLS_Del_alpha ~ lifespan$Ka, ylab="Replicative Lifespan", xlab="Evolutionary Distance(K)");
+> abline( m, col="red");
+> 
+> 
+> ###PROTEIN INTERACTIONS VS LIFESPAN REGRESSION ANALYSIS
+> #calculate connecting degrees for proteins
+> ids = c(pairs$ORF1, pairs$ORF2);
+> degree = table( ids );
+> 
+> #Summarize the results in a dataframe 'net'
+> net = data.frame(degree);
+> str(net);
+'data.frame':   4478 obs. of  2 variables:
+ $ ids : Factor w/ 4478 levels "YAL001C","YAL002W",..: 1 2 3 4 5 6 7 8 9 10 ...
+ $ Freq: int  1 3 3 2 7 24 5 4 3 5 ...
+> net$id = as.character( net$id);
+> 
+> #Match data and net
+> data$degree = net$Freq[match(data$orfname, net$id )]
+> 
+> #Match lifespan to Frequency
+> lifespan$Freq = net$Freq[match(lifespan$ORF, net$id )];
+> 
+> #Perform linear regression of lifespan vs evolutionary distance and summarize results
+> m= lm(lifespan$RLS_Del_alpha ~ lifespan$Freq);
+> summary(m);
+
+Call:
+lm(formula = lifespan$RLS_Del_alpha ~ lifespan$Freq)
+
+Residuals:
+     Min       1Q   Median       3Q      Max 
+-20.3491  -2.7763  -0.2380   3.2913  14.6276 
+
+Coefficients:
+              Estimate Std. Error t value Pr(>|t|)    
+(Intercept)   24.87934    0.29921  83.150   <2e-16 ***
+lifespan$Freq -0.03535    0.02607  -1.356    0.176    
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1 
+
+Residual standard error: 5.182 on 401 degrees of freedom
+  (181 observations deleted due to missingness)
+Multiple R-squared: 0.004564,   Adjusted R-squared: 0.002081 
+F-statistic: 1.838 on 1 and 401 DF,  p-value: 0.1759 
+
+> 
+> #Plot regression analysis
+> plot(lifespan$RLS_Del_alpha ~ lifespan$Freq, ylab="Replicative Lifespan", xlab="Protein Interactions" );
+> abline( m, col="red");
+> 
+> 
+> ###MORPHOLOGICAL PLASTICITY VS LIFESPAN REGRESSION ANALYSIS
+> #Match lifespan to mutant data
+> lifespan$stddev = scmd$stddev[match(lifespan$ORF, scmd$name)];
+> 
+> #Perform linear regression of lifespan to morphological plasticity and summarize results
+> m = lm(lifespan$RLS_Del_alpha ~ lifespan$stddev);
+> summary(m);
+
+Call:
+lm(formula = lifespan$RLS_Del_alpha ~ lifespan$stddev)
+
+Residuals:
+     Min       1Q   Median       3Q      Max 
+-16.0104  -2.7783  -0.2045   3.1908  14.7606 
+
+Coefficients:
+                Estimate Std. Error t value Pr(>|t|)    
+(Intercept)      27.4856     0.6872  39.998  < 2e-16 ***
+lifespan$stddev  -3.2701     0.7445  -4.392 1.35e-05 ***
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1 
+
+Residual standard error: 5.046 on 543 degrees of freedom
+  (39 observations deleted due to missingness)
+Multiple R-squared: 0.03431,    Adjusted R-squared: 0.03253 
+F-statistic: 19.29 on 1 and 543 DF,  p-value: 1.349e-05 
+
+> 
+> #Plot of regresssion analysis
+> plot(lifespan$RLS_Del_alpha ~ lifepsan$stddev, ylab="Replicative Lifespan", xlab="Morphological Plasticity Robustness" );
+Error in eval(expr, envir, enclos) : object 'lifepsan' not found
+> abline( m, col="red");
+> 
+> ###LIFESPAN MULTIPLE REGRESSION ANALYSIS
+> #Perform regression analysis and summarize results
+> m = lm(lifespan$RLS_Del_alpha ~ lifespan$YPE + lifespan$Ka + lifespan$Freq + lifespan$stddev );
+> summary(m);
+
+Call:
+lm(formula = lifespan$RLS_Del_alpha ~ lifespan$YPE + lifespan$Ka + 
+    lifespan$Freq + lifespan$stddev)
+
+Residuals:
+       Min         1Q     Median         3Q        Max 
+-11.588340  -3.351555   0.006343   2.913476  14.455885 
+
+Coefficients:
+                Estimate Std. Error t value Pr(>|t|)    
+(Intercept)     27.82186    6.63055   4.196 7.29e-05 ***
+lifespan$YPE     0.41090    5.34929   0.077   0.9390    
+lifespan$Ka     12.33823   21.66274   0.570   0.5707    
+lifespan$Freq    0.01003    0.04879   0.206   0.8377    
+lifespan$stddev -5.41245    2.97018  -1.822   0.0723 .  
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1 
+
+Residual standard error: 5.06 on 76 degrees of freedom
+  (503 observations deleted due to missingness)
+Multiple R-squared: 0.06907,    Adjusted R-squared: 0.02007 
+F-statistic:  1.41 on 4 and 76 DF,  p-value: 0.2389 
+
+> 
+> ###ROBUST FACTOR MULTIPLE REGRESSION ANALYSIS
+> #Perform regression analysis and summarize results
+> m = lm(lifespan$YPE ~ lifespan$Ka + lifespan$Freq + lifespan$stddev);
+> summary(m);
+
+Call:
+lm(formula = lifespan$YPE ~ lifespan$Ka + lifespan$Freq + lifespan$stddev)
+
+Residuals:
+     Min       1Q   Median       3Q      Max 
+-0.54976 -0.01475  0.02151  0.04981  0.18658 
+
+Coefficients:
+                 Estimate Std. Error t value Pr(>|t|)    
+(Intercept)      1.154419   0.051437  22.443  < 2e-16 ***
+lifespan$Ka      0.733307   0.453871   1.616 0.110256    
+lifespan$Freq   -0.001939   0.001016  -1.909 0.059991 .  
+lifespan$stddev -0.226252   0.057785  -3.915 0.000194 ***
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1 
+
+Residual standard error: 0.1078 on 77 degrees of freedom
+  (503 observations deleted due to missingness)
+Multiple R-squared: 0.3525,     Adjusted R-squared: 0.3273 
+F-statistic: 13.97 on 3 and 77 DF,  p-value: 2.318e-07 
+
+> 
+> ###FITNESS, MORPHOLOGICAL PLASTICITY & LIFESPAN MULTIPLE REGRESSION
+> #Perform regression analysis and summarize results when RLS is held constant
+> m = lm(lifespan$RLS_Del_alpha ~ lifespan$stddev + lifespan$YPE);
+> summary(m);
+
+Call:
+lm(formula = lifespan$RLS_Del_alpha ~ lifespan$stddev + lifespan$YPE)
+
+Residuals:
+     Min       1Q   Median       3Q      Max 
+-12.5871  -3.2736  -0.2129   3.3901  15.8493 
+
+Coefficients:
+                Estimate Std. Error t value Pr(>|t|)    
+(Intercept)       21.533      4.148   5.191 4.62e-07 ***
+lifespan$stddev   -4.578      1.444  -3.169  0.00174 ** 
+lifespan$YPE       6.833      3.492   1.957  0.05157 .  
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1 
+
+Residual standard error: 5.019 on 228 degrees of freedom
+  (353 observations deleted due to missingness)
+Multiple R-squared: 0.09789,    Adjusted R-squared: 0.08997 
+F-statistic: 12.37 on 2 and 228 DF,  p-value: 7.938e-06 
+
+> 
+> #Perform regression analysis and summarize results when morphological plasticity is held constant
+> m = lm(lifespan$stddev ~ lifespan$YPE + lifespan$RLS_Del_alpha);
+> summary(m);
+
+Call:
+lm(formula = lifespan$stddev ~ lifespan$YPE + lifespan$RLS_Del_alpha)
+
+Residuals:
+     Min       1Q   Median       3Q      Max 
+-0.48311 -0.12750 -0.04752  0.06869  1.32728 
+
+Coefficients:
+                        Estimate Std. Error t value Pr(>|t|)    
+(Intercept)             2.058099   0.142004  14.493  < 2e-16 ***
+lifespan$YPE           -0.997228   0.143538  -6.947 3.85e-11 ***
+lifespan$RLS_Del_alpha -0.009218   0.002908  -3.169  0.00174 ** 
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1 
+
+Residual standard error: 0.2252 on 228 degrees of freedom
+  (353 observations deleted due to missingness)
+Multiple R-squared: 0.243,      Adjusted R-squared: 0.2364 
+F-statistic: 36.59 on 2 and 228 DF,  p-value: 1.650e-14 
+
+> 
+> #Perform regression analysis and summarize results when fitness is held constant
+> m = lm(lifespan$YPE ~ lifespan$stddev + lifespan$RLS_Del_alpha);
+> summary(m);
+
+Call:
+lm(formula = lifespan$YPE ~ lifespan$stddev + lifespan$RLS_Del_alpha)
+
+Residuals:
+      Min        1Q    Median        3Q       Max 
+-0.558495 -0.008239  0.017666  0.045913  0.160151 
+
+Coefficients:
+                        Estimate Std. Error t value Pr(>|t|)    
+(Intercept)             1.070441   0.042202  25.365  < 2e-16 ***
+lifespan$stddev        -0.175199   0.025218  -6.947 3.85e-11 ***
+lifespan$RLS_Del_alpha  0.002417   0.001235   1.957   0.0516 .  
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1 
+
+Residual standard error: 0.0944 on 228 degrees of freedom
+  (353 observations deleted due to missingness)
+Multiple R-squared: 0.2227,     Adjusted R-squared: 0.2159 
+F-statistic: 32.66 on 2 and 228 DF,  p-value: 3.366e-13 
+
+> 

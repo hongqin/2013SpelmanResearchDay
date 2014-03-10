@@ -1,0 +1,120 @@
+{\rtf1\ansi\ansicpg1252\cocoartf1038\cocoasubrtf360
+{\fonttbl\f0\fswiss\fcharset0 Helvetica;}
+{\colortbl;\red255\green255\blue255;}
+\margl1440\margr1440\vieww16780\viewh12920\viewkind0
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural\pardirnatural
+
+\f0\fs24 \cf0 Error in file(file, "rt") : cannot open the connection\
+In addition: Warning message:\
+In file(file, "rt") :\
+  cannot open file 'mutant data.tab': No such file or directory\
+> fit$Ka = data$Ka[match(fit$orf, data$orfname)];\
+> m = lm(log(fit$YPE)~fit$Ka);\
+> \
+> summary(m);\
+\
+Call:\
+lm(formula = log(fit$YPE) ~ fit$Ka)\
+\
+Residuals:\
+     Min       1Q   Median       3Q      Max \
+-1.18362  0.04970  0.08699  0.10574  0.19383 \
+\
+Coefficients:\
+            Estimate Std. Error t value Pr(>|t|)    \
+(Intercept) -0.10222    0.01588  -6.438  2.3e-10 ***\
+fit$Ka       0.50541    0.29319   1.724   0.0852 .  \
+---\
+Signif. codes:  0 \'91***\'92 0.001 \'91**\'92 0.01 \'91*\'92 0.05 \'91.\'92 0.1 \'91 \'92 1 \
+\
+Residual standard error: 0.2398 on 676 degrees of freedom\
+  (2028 observations deleted due to missingness)\
+Multiple R-squared: 0.004377,	Adjusted R-squared: 0.002904 \
+F-statistic: 2.972 on 1 and 676 DF,  p-value: 0.0852 \
+\
+> \
+> scmd = read.table( "mutant data.tab", sep="\\t", header=T)\
+Error in file(file, "rt") : cannot open the connection\
+In addition: Warning message:\
+In file(file, "rt") :\
+  cannot open file 'mutant data.tab': No such file or directory\
+> \
+> lifespan$YPD = fit$YPD[match(lifespan$ORF, fit$orf)];\
+> \
+> summary(lm(lifespan$RLS_Del_alpha ~ lifespan$YPD));\
+\
+Call:\
+lm(formula = lifespan$RLS_Del_alpha ~ lifespan$YPD)\
+\
+Residuals:\
+     Min       1Q   Median       3Q      Max \
+-15.9325  -2.8313  -0.1051   3.5157  18.2696 \
+\
+Coefficients:\
+             Estimate Std. Error t value Pr(>|t|)    \
+(Intercept)    14.187      4.126   3.438 0.000695 ***\
+lifespan$YPD   10.240      4.178   2.451 0.014991 *  \
+---\
+Signif. codes:  0 \'91***\'92 0.001 \'91**\'92 0.01 \'91*\'92 0.05 \'91.\'92 0.1 \'91 \'92 1 \
+\
+Residual standard error: 5.212 on 230 degrees of freedom\
+  (352 observations deleted due to missingness)\
+Multiple R-squared: 0.02545,	Adjusted R-squared: 0.02122 \
+F-statistic: 6.007 on 1 and 230 DF,  p-value: 0.01499 \
+\
+> \
+> lifespan$YPE = fit$YPE[match(lifespan$ORF, fit$orf)];\
+> summary(lm(lifespan$RLS_Del_alpha ~ lifespan$YPE));\
+\
+Call:\
+lm(formula = lifespan$RLS_Del_alpha ~ lifespan$YPE)\
+\
+Residuals:\
+     Min       1Q   Median       3Q      Max \
+-14.8766  -2.9008  -0.1438   3.4350  17.2508 \
+\
+Coefficients:\
+             Estimate Std. Error t value Pr(>|t|)    \
+(Intercept)    12.294      3.057   4.021 7.86e-05 ***\
+lifespan$YPE   12.246      3.109   3.939 0.000108 ***\
+---\
+Signif. codes:  0 \'91***\'92 0.001 \'91**\'92 0.01 \'91*\'92 0.05 \'91.\'92 0.1 \'91 \'92 1 \
+\
+Residual standard error: 5.11 on 230 degrees of freedom\
+  (352 observations deleted due to missingness)\
+Multiple R-squared: 0.0632,	Adjusted R-squared: 0.05913 \
+F-statistic: 15.52 on 1 and 230 DF,  p-value: 0.0001084 \
+\
+> \
+> plot(lifespan$RLS_Del_alpha ~ lifespan$YPE, ylab="Replicative Lifespan", xlab="Fitness Robustness");\
+> abline( m, col="red");\
+> \
+> abline( m, col="red");\
+> \
+> lifespan$Ka = data$Ka[match(lifespan$ORF,data$orfname)];\
+> \
+> m = lm(lifespan$RLS_Del_alpha ~ lifespan$Ka);\
+> summary(m);\
+\
+Call:\
+lm(formula = lifespan$RLS_Del_alpha ~ lifespan$Ka)\
+\
+Residuals:\
+     Min       1Q   Median       3Q      Max \
+-14.1725  -3.1135  -0.1135   3.2095  14.3061 \
+\
+Coefficients:\
+            Estimate Std. Error t value Pr(>|t|)    \
+(Intercept)  24.5742     0.5185  47.396   <2e-16 ***\
+lifespan$Ka  -8.0331     9.0552  -0.887    0.376    \
+---\
+Signif. codes:  0 \'91***\'92 0.001 \'91**\'92 0.01 \'91*\'92 0.05 \'91.\'92 0.1 \'91 \'92 1 \
+\
+Residual standard error: 4.996 on 283 degrees of freedom\
+  (299 observations deleted due to missingness)\
+Multiple R-squared: 0.002773,	Adjusted R-squared: -0.0007506 \
+F-statistic: 0.787 on 1 and 283 DF,  p-value: 0.3758 \
+\
+> plot(lifespan$RLS_Del_alpha ~ lifespan$Ka, ylab="Replicative Lifespan", xlab="Evolutionary Distance(K)");\
+> \
+> abline( m, col="red");}

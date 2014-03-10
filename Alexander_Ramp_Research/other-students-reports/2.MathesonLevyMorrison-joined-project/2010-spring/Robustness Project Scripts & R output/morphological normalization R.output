@@ -1,0 +1,32 @@
+
+R version 2.10.1 (2009-12-14)
+Copyright (C) 2009 The R Foundation for Statistical Computing
+ISBN 3-900051-07-0
+
+R is free software and comes with ABSOLUTELY NO WARRANTY.
+You are welcome to redistribute it under certain conditions.
+Type 'license()' or 'licence()' for distribution details.
+
+  Natural language support but running in an English locale
+
+R is a collaborative project with many contributors.
+Type 'contributors()' for more information and
+'citation()' on how to cite R or R packages in publications.
+
+Type 'demo()' for some demos, 'help()' for on-line help, or
+'help.start()' for an HTML browser interface to help.
+Type 'q()' to quit R.
+
+> #Read mutant table into R
+> scmd = read.table( "mutant data.tab", sep="\t", header=T)
+> 
+> #Calculate the variance by column
+> row.names(scmd) = as.character( scmd$name )
+> for( j in 2:502 ){
++ scmd[,j] = ( scmd[,j] - mean(scmd[,j],na.rm=T) )/ sqrt( var( scmd[,j], na.rm=T))
++ };
+> 
+> #Calculate the standard deviation by row
+> for ( i in 1:4718){
++ scmd$stddev[i] = sqrt(var( t(scmd[i,2:502]), na.rm=T ) )}; 
+> 

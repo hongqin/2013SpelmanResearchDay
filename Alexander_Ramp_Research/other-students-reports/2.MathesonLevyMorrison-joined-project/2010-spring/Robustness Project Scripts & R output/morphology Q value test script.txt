@@ -1,0 +1,48 @@
+# Read table into R
+mutant = read.table( "Mutant data.tab",header=T);
+
+#Input lifespans
+lifespan = read.csv("lifespan.csv");
+
+#Match lifespan to mutant data
+mutant$RLS_Del_alpha = lifespan$RLS_Del_alpha[match(mutant$name, lifespan$ORF)];
+
+#Loop the data
+pstorage= numeric(502);
+names(pstorage) = names(mutant)[1:502]
+
+for (j in 1:502) {
+slm = summary(lm(mutant$RLS_Del_alpha ~ mutant[,j]));
+pstorage[j] = 1 - pf(slm$fs[1], slm$fs[2], slm$fs[3]);
+};
+
+#Create a histogram to determine the distribution of the p values
+hist(pstorage);
+
+#Output the results to excel
+write.csv(pstorage, "pvalues.csv");
+ 
+#Install qvalue package
+install.packages("qvalue");
+
+#Load qvalue package into R
+library(qvalue);
+
+#Remove the errors in the p vlaues to make sure that all p values are a numerical number
+pstorage[is.na(pstorage)] = 1; 
+
+#Obtain qvalues from pvalues, q values is how many p values are false
+qobj=qvalue(pstorage);
+
+#List qvalues
+q = qobj$q;
+
+#Plot the qvalues
+plot( qobj);
+
+#Find q vlaues for 0.05%
+q[q<0.05]
+
+#Find q vlaues for 0.10% 
+q[q<0.1]
+

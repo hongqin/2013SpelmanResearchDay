@@ -1,0 +1,43 @@
+oct 23
+Read and make powerpoint of  'The reliability theory of aging and longevity
+Convert the R code into matlab code of: simulation.qin2012Oct23.R
+
+
+Todo: 900# stipend request
+ matlab tutorial
+ matalb zipf random number generator. 
+ generate histograms
+ exponential random numbers
+
+ maximal likelihood fitting for gompertz model
+ test mle method on normal random variables
+
+----
+2012 Oct 2
+  wrote a function to generate cdf from observations. 
+To: how to use optimatizat for parameter estimation in matalb, becuase we want do maximal likelhood fit for Gompertz model. 
+
+-----
+2012 sep 25
+   we ploted histogram and generated cdf based on emprical values.
+todo: we need to write a funciton to calculate cdf based emprical values. 
+
+------
+sep 18
+ installed matlab,
+ tryied randht(), but it gives random floating numbers, not integers. 
+--------------
+sep 11, 
+reviewed qin 2012 proposal. 
+todo: 
+ using the analytic solution to plot the failure of  1, 2, 3, and 4-parallel component pathways. refer to page 533 in Gavrilov 2001 JTB. 
+
+--------------
+Sep4,  for math research project
+  
+TOdo:
+install xcode 3.2.5
+install matlab
+run sample matlab code to generate power-law random numbers.
+read Qin's 2012 proposal, make a list of questions. 
+

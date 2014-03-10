@@ -1,0 +1,112 @@
+
+R version 2.10.1 (2009-12-14)
+Copyright (C) 2009 The R Foundation for Statistical Computing
+ISBN 3-900051-07-0
+
+R is free software and comes with ABSOLUTELY NO WARRANTY.
+You are welcome to redistribute it under certain conditions.
+Type 'license()' or 'licence()' for distribution details.
+
+  Natural language support but running in an English locale
+
+R is a collaborative project with many contributors.
+Type 'contributors()' for more information and
+'citation()' on how to cite R or R packages in publications.
+
+Type 'demo()' for some demos, 'help()' for on-line help, or
+'help.start()' for an HTML browser interface to help.
+Type 'q()' to quit R.
+
+> # Read table into R
+> mutant = read.table( "Mutant data.tab",header=T);
+> 
+> #Input lifespans
+> lifespan = read.csv("lifespan.csv");
+> 
+> #Match lifespan to mutant data
+> mutant$RLS_Del_alpha = lifespan$RLS_Del_alpha[match(mutant$name, lifespan$ORF)];
+> 
+> #Loop the data
+> pstorage= numeric(502);
+> names(pstorage) = names(mutant)[1:502]
+> 
+> for (j in 1:502) {
++ slm = summary(lm(mutant$RLS_Del_alpha ~ mutant[,j]));
++ pstorage[j] = 1 - pf(slm$fs[1], slm$fs[2], slm$fs[3]);
++ };
+> #Create a histogram to determine the distribution of the p values
+> hist(pstorage);
+> 
+> #Output the results to excel
+> write.csv(pstorage, "pvalues.csv");
+>  
+> #Install qvalue package
+> install.packages("qvalue");
+Warning in install.packages("qvalue") :
+  argument 'lib' is missing: using 'C:\Users\Owner\Documents/R/win-library/2.10'
+--- Please select a CRAN mirror for use in this session ---
+trying URL 'http://watson.nci.nih.gov/cran_mirror/bin/windows/contrib/2.10/qvalue_1.22.0.zip'
+Content type 'application/zip' length 473031 bytes (461 Kb)
+opened URL
+downloaded 461 Kb
+
+package 'qvalue' successfully unpacked and MD5 sums checked
+
+The downloaded packages are in
+        C:\Users\Owner\AppData\Local\Temp\RtmpkbvmLM\downloaded_packages
+> 
+> #Load qvalue package into R
+> library(qvalue);
+Loading required package: tcltk
+Loading Tcl/Tk interface ... done
+> #Remove the errors in the p vlaues to make sure that all p values are a numerical number
+> pstorage[is.na(pstorage)] = 1; 
+> 
+> #Obtain qvalues from pvalues, q values is how many p values are false
+> qobj=qvalue(pstorage);
+> 
+> #List qvalues
+> q = qobj$q;
+> 
+> #Plot the qvalues
+> plot( qobj);
+> #Find q vlaues for 0.05%
+> q[q<0.05]
+  C125_A1B       D203 
+0.03271796 0.03271796 
+> 
+> #Find q vlaues for 0.10% 
+> q[q<0.1]
+   A101_A1B      A101_C      A102_C    A103_A1B      A107_C        A109 
+ 0.08317924  0.09391659  0.08317924  0.08317924  0.08317924  0.08317924 
+   A109_A1B        A111    A112_A1B        A118        A119    A7.1_A1B 
+ 0.08070333  0.09391659  0.08317924  0.08317924  0.08317924  0.08317924 
+     A7.1_C    A7.2_A1B    A8.1_A1B      A8.1_C      A8.2_C    ACV101_C 
+ 0.06073324  0.08317924  0.08398492  0.08317924  0.09933281  0.08219557 
+ ACV102_A1B    ACV102_C    ACV7.1_C  ACV7.2_A1B    ACV8.1_C  ACV8.2_A1B 
+ 0.08317924  0.06073324  0.08924062  0.09542655  0.08317924  0.08219557 
+   C107_A1B    C108_A1B   C11.2_A1B     C11.2_C    C111_A1B    C115_A1B 
+ 0.08317924  0.08317924  0.08219557  0.09732239  0.09391659  0.09391659 
+     C115_C      C116_C    C117_A1B    C118_A1B   C12.2_A1B    C125_A1B 
+ 0.09455711  0.07682012  0.08317924  0.07682012  0.08317924  0.03271796 
+ CCV108_A1B  CCV113_A1B    CCV115_A  CCV117_A1B CCV12.2_A1B      D106_C 
+ 0.08317924  0.08317924  0.08317924  0.08317924  0.09732239  0.08317924 
+     D108_C      D109_C      D116_C      D119_C      D130_C      D131_C 
+ 0.09732239  0.08317924  0.08317924  0.09594866  0.09542655  0.09391659 
+     D134_C      D135_C      D137_C     D14.1_A     D14.1_C      D144_C 
+ 0.08317924  0.09732239  0.08317924  0.08317924  0.08317924  0.08317924 
+     D153_C      D154_C      D155_C      D156_C      D169_C     D17.1_C 
+ 0.09455711  0.08219557  0.08317924  0.09732239  0.09732239  0.09732239 
+    D17.2_C   D17.3_A1B      D173_A      D173_C      D176_A      D176_C 
+ 0.08317924  0.09542655  0.09221133  0.08317924  0.08317924  0.08317924 
+     D179_A      D183_C      D188_C        D203        D204        D206 
+ 0.08317924  0.08317924  0.08317924  0.03271796  0.09732239  0.09247829 
+       D209  DCV104_A1B  DCV107_A1B  DCV118_A1B    DCV123_C    DCV139_C 
+ 0.09221133  0.08317924  0.08317924  0.08219557  0.09732239  0.09221133 
+  DCV14.1_C  DCV145_A1B   DCV15.1_A   DCV15.1_C   DCV15.2_C   DCV15.3_C 
+ 0.09221133  0.09732239  0.08517594  0.08317924  0.08317924  0.09391659 
+   DCV154_C    DCV173_C    DCV176_C    DCV179_A  DCV181_A1B    DCV182_C 
+ 0.08317924  0.09455711  0.09732239  0.09732239  0.07315934  0.09455711 
+   DCV183_C    DCV188_C    DCV189_C    DCV191_A    DCV192_C    DCV193_C 
+ 0.07107548  0.09221133  0.08317924  0.08317924  0.09391659  0.09732239 
+> 
